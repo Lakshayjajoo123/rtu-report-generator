@@ -7,6 +7,7 @@ from datetime import datetime
 from templates.template_manager import apply_template
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+from docx.shared import Cm
 
 def add_page_numbers(doc):
 
@@ -34,6 +35,20 @@ def add_page_numbers(doc):
     run._r.append(fldChar1)
     run._r.append(instrText)
     run._r.append(fldChar2)
+
+def apply_text_formatting(paragraph, formatting):
+
+    paragraph.paragraph_format.line_spacing = (
+        formatting.line_spacing
+    )
+
+    for run in paragraph.runs:
+
+        run.font.name = formatting.font_name
+
+        run.font.size = Pt(
+            formatting.font_size
+        )
 
 def add_toc_page(doc, data):
 
@@ -260,26 +275,70 @@ def add_chapters(doc, data):
 
         for subsection in section_data.subsections:
 
-            doc.add_heading(
-                subsection.title,
-                level=2
+            heading = doc.add_heading(
+            subsection.title,
+             level=2
             )
 
-            doc.add_paragraph(
-                subsection.content
+            if data.template == "CUSTOM":
+
+                apply_text_formatting(
+                heading,
+                data.formatting
+            )
+
+            paragraph = doc.add_paragraph(
+            subsection.content
+            )
+
+            if data.template == "CUSTOM":
+
+                apply_text_formatting(
+                paragraph,
+                data.formatting
             )
 
         doc.add_page_break()
 
         chapter_no += 1
 
+def apply_custom_formatting(doc, formatting):
+
+    section = doc.sections[0]
+
+    section.left_margin = Cm(
+        formatting.left_margin
+    )
+
+    section.right_margin = Cm(
+        formatting.right_margin
+    )
+
+    section.top_margin = Cm(
+        formatting.top_margin
+    )
+
+    section.bottom_margin = Cm(
+        formatting.bottom_margin
+    )
+
 def generate_report(data):
 
     doc = Document()
-    apply_template(
-        doc,
-        data.template
-    )
+
+    if data.template == "CUSTOM":
+
+        apply_custom_formatting(
+            doc,
+            data.formatting
+        )
+
+    else:
+
+        apply_template(
+            doc,
+            data.template
+        )
 
     add_cover_page(doc, data)
 
