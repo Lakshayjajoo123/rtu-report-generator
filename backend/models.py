@@ -1,6 +1,10 @@
 from pydantic import BaseModel
 from typing import List
 
+class AIRequest(BaseModel):
+
+    project_title: str
+    
 class Formatting(BaseModel):
     font_name: str
     font_size: int

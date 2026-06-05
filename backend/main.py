@@ -3,6 +3,8 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from models import ReportRequest
 from report_generator import generate_report
+from ai_generator import generate_ai_content
+from models import AIRequest
 
 app = FastAPI()
 app.add_middleware(
@@ -21,7 +23,17 @@ def home():
         "message": "Report Generator Running"
     }
 
+@app.post("/generate-ai-content")
+def generate_ai(request: AIRequest):
 
+    sections = generate_ai_content(
+        request.project_title
+    )
+
+    return {
+        "sections": sections
+    }
+    
 @app.post("/generate")
 def create_report(report: ReportRequest):
 
